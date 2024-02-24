@@ -43,7 +43,9 @@ export default function nodeServer() {
     });
 
     ws.on('close', () => {
-      controller.removePlayerActive(id);
+      // controller.removePlayerActive(id);
+
+      controller.cleanUp(id);
 
       delete clients[id];
 

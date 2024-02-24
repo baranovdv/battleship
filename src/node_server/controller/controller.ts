@@ -15,7 +15,7 @@ import RoomController, {
 
 export interface IController {
   handleRequest: (request: string, id: number) => string[];
-  removePlayerActive: (id: number) => void;
+  cleanUp: (id: number) => void;
 }
 
 export default class Controller extends AbstractController {
@@ -90,8 +90,9 @@ export default class Controller extends AbstractController {
     }
   }
 
-  public removePlayerActive(id: number): void {
+  public cleanUp(id: number) {
     this.state.removePlayerActive(id);
+    this.state.checkRooms(id);
   }
 
   private addMessage(message: MessageToSend) {
