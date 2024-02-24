@@ -2,6 +2,7 @@ import { ERROR_COMMAND_MESSAGE } from '../data/data';
 import {
   MessageAddress,
   MessageTypesForAll,
+  MessageTypesGameRoom,
   MessageTypesPersonal,
 } from '../data/enums';
 import { Commands, Message, MessageToSend } from '../data/types';
@@ -58,6 +59,22 @@ export default class Controller extends AbstractController {
         case 'create_room':
           {
             this.room_controller.createRoom(id);
+
+            this.updateRoom();
+          }
+          break;
+
+        case 'add_user_to_room':
+          {
+            const gameData = this.room_controller.addUserToRoom(data, id);
+
+            if (gameData) {
+              const message = this.createMessage(
+                MessageTypesGameRoom.create_game,
+                gameData.data
+              );
+              this.addMessage({ message, address: gameData.playerIds });
+            }
 
             this.updateRoom();
           }

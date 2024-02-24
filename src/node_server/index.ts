@@ -25,16 +25,16 @@ export default function nodeServer() {
         const messages = controller.handleRequest(data.toString(), id);
 
         messages.forEach((message) => {
-          switch (message.address) {
-            case MessageAddress.ALL:
-              for (const id in clients) {
-                clients[id].send(message.message);
-              }
-              break;
-
-            default:
-              ws.send(message.message);
-              break;
+          if (message.address === MessageAddress.ALL) {
+            for (const id in clients) {
+              clients[id].send(message.message);
+            }
+          } else if (Array.isArray(message.address)) {
+            message.address.forEach((id) => {
+              clients[id].send(message.message);
+            });
+          } else {
+            ws.send(message.message);
           }
         });
       } catch (error) {

@@ -12,7 +12,7 @@ export type Message = {
 
 export type MessageToSend = {
   message: string;
-  address?: number;
+  address?: number | number[];
 };
 
 export type WinnerData = {
@@ -33,6 +33,20 @@ export type RoomData = {
 export type PlayerData = {
   name: string;
   password: string;
+};
+
+export type AddUserToRoomData = {
+  indexRoom: number;
+};
+
+export type AddUserToRoomResponse = {
+  data: string;
+  playerIds: number[];
+};
+
+export type CreateGameData = {
+  idGame: number;
+  idPlayer: number;
 };
 
 export type LoginOrCreateRequestData = {

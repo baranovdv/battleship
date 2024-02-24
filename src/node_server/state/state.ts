@@ -21,11 +21,15 @@ export interface IState {
 
   getRooms: () => RoomData[];
   addRoom: (roomData: RoomData) => void;
+  deleteRoom: (id: number) => void;
+
+  addGame: (game: RoomData) => void;
 }
 
 export default class State implements IState {
   private state: AppState;
   private rooms: RoomData[];
+  private games: RoomData[];
   private winners: WinnerData[];
   private playersDB: PlayerData[];
   private playersActive: RoomUser[];
@@ -33,6 +37,7 @@ export default class State implements IState {
   constructor() {
     this.state = 'main';
     this.rooms = [];
+    this.games = [];
     this.winners = [];
     this.playersDB = [];
     this.playersActive = [];
@@ -48,6 +53,18 @@ export default class State implements IState {
 
   public addRoom(roomData: RoomData): void {
     this.rooms.push(roomData);
+  }
+
+  public deleteRoom(roomId: number): void {
+    const roomIndex = this.rooms.findIndex((room) => (room.roomId = roomId));
+
+    if (!roomIndex) throw new Error('Room DB error');
+
+    this.rooms.splice(roomIndex, 1);
+  }
+
+  addGame(game: RoomData): void {
+    this.games.push(game);
   }
 
   public getWinners(): WinnerData[] {
@@ -86,7 +103,7 @@ export default class State implements IState {
     this.playersActive.splice(playerIndex, 1);
   }
 
-  addPlayerActive(player: RoomUser): void {
+  public addPlayerActive(player: RoomUser): void {
     this.playersActive.push(player);
   }
 }

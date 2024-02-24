@@ -3,6 +3,7 @@ export enum MessageTypesGameRoom {
   update_room = 'update_room',
   add_user_to_room = 'add_user_to_room',
   start_game = 'start_game',
+  create_game = 'create_game',
   turn = 'turn',
   randomAttack = 'randomAttack',
   finish = 'finish',
