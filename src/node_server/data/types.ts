@@ -40,11 +40,14 @@ export type ShipData = {
   type: 'small' | 'medium' | 'large' | 'huge';
 };
 
+export type GameField = number[][];
+
 export type GameRooms = Record<number, GameRoom>;
 
 export type GameRoom = {
-  GamePlayers: GamePlayer[];
-  CurrentTurn: number;
+  gamePlayers: GamePlayer[];
+  currentTurn: number;
+  gameFields: GameField[];
 };
 
 export type GamePlayer = {
@@ -55,6 +58,34 @@ export type GamePlayer = {
 export type GameData = {
   gameId: number;
   ships: ShipData[];
+  indexPlayer: number;
+};
+
+export type TurnData = {
+  currentPlayer: number;
+};
+
+export type AttackResult = 'miss' | 'killed' | 'shot' | 'fail';
+
+export type AttackFeedbackData = {
+  position: {
+    x: number;
+    y: number;
+  };
+  currentPlayer: number;
+  status: AttackResult;
+};
+
+export type HandleAttackResponse = {
+  attackFeedback: AttackFeedbackData;
+  gameId: number;
+  splash?: Set<string>;
+};
+
+export type AttackData = {
+  gameId: number;
+  x: number;
+  y: number;
   indexPlayer: number;
 };
 

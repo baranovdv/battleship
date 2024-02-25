@@ -5,7 +5,15 @@ import {
   MessageTypesGameRoom,
   MessageTypesPersonal,
 } from '../data/enums';
-import { Commands, GamePlayer, Message, MessageToSend } from '../data/types';
+import {
+  Commands,
+  GamePlayer,
+  GameRoom,
+  HandleAttackResponse,
+  Message,
+  MessageToSend,
+  TurnData,
+} from '../data/types';
 import State, { IState } from '../state/state';
 import AbstractController from './abstract_controller/abstract_controller';
 import GameController, {
@@ -95,7 +103,8 @@ export default class Controller extends AbstractController {
 
             if (gameId === null) break;
 
-            const gamePlayers: GamePlayer[] = this.state.getGame(gameId);
+            const gamePlayers: GamePlayer[] =
+              this.state.getGame(gameId).gamePlayers;
 
             gamePlayers.forEach((player) => {
               const message = this.createMessage(
@@ -105,6 +114,55 @@ export default class Controller extends AbstractController {
 
               this.addMessage({ message, address: player.indexPlayer });
             });
+
+            this.turn(gameId);
+          }
+          break;
+
+        case 'attack':
+          {
+            const { attackFeedback, gameId, splash }: HandleAttackResponse =
+              this.game_controller.handleAttack(data);
+
+            if (attackFeedback.status === 'fail') return [];
+
+            const gamePlayers: GamePlayer[] =
+              this.state.getGame(gameId).gamePlayers;
+
+            gamePlayers.forEach((player) => {
+              const message = this.createMessage(
+                MessageTypesGameRoom.attack,
+                JSON.stringify(attackFeedback)
+              );
+
+              this.addMessage({ message, address: player.indexPlayer });
+            });
+
+            if (attackFeedback.status === 'killed') {
+              const splashAttackFeedback = JSON.parse(
+                JSON.stringify(attackFeedback)
+              );
+
+              splashAttackFeedback.status = 'miss';
+
+              splash?.forEach((coord) => {
+                const [x, y] = coord.split(':');
+
+                splashAttackFeedback.position.x = +x;
+                splashAttackFeedback.position.y = +y;
+
+                gamePlayers.forEach((player) => {
+                  const message = this.createMessage(
+                    MessageTypesGameRoom.attack,
+                    JSON.stringify(splashAttackFeedback)
+                  );
+
+                  this.addMessage({ message, address: player.indexPlayer });
+                });
+              });
+            }
+
+            this.turn(gameId, attackFeedback.status === 'miss');
           }
           break;
 
@@ -129,6 +187,30 @@ export default class Controller extends AbstractController {
 
   private clearMessages(): void {
     this.messages = [];
+  }
+
+  private turn(gameId: number, isChangeTurn?: boolean) {
+    const gameRoom: GameRoom = this.state.getGame(gameId);
+
+    if (isChangeTurn) {
+      gameRoom.currentTurn = Number(!gameRoom.currentTurn);
+    }
+
+    const currentTurnPlayerId: number =
+      gameRoom.gamePlayers[gameRoom.currentTurn].indexPlayer;
+
+    const turnData: TurnData = {
+      currentPlayer: currentTurnPlayerId,
+    };
+
+    gameRoom.gamePlayers.forEach((player) => {
+      const message = this.createMessage(
+        MessageTypesGameRoom.turn,
+        JSON.stringify(turnData)
+      );
+
+      this.addMessage({ message, address: player.indexPlayer });
+    });
   }
 
   private updateRoom(): void {

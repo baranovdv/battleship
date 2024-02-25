@@ -6,6 +6,7 @@ export enum MessageTypesGameRoom {
   create_game = 'create_game',
   add_ships = 'add_ships',
   turn = 'turn',
+  attack = 'attack',
   randomAttack = 'randomAttack',
   finish = 'finish',
 }
@@ -22,4 +23,10 @@ export enum MessageTypesForAll {
 export enum MessageAddress {
   ALL,
   SELF,
+}
+
+export enum SHIP_STATE {
+  NO_SHIP,
+  SHIP,
+  SHOT,
 }

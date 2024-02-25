@@ -69,8 +69,9 @@ export default class RoomController implements IRoomController {
 
     this.state.addGame({
       [roomData.roomId]: {
-        GamePlayers: [],
-        CurrentTurn: 0,
+        gamePlayers: [],
+        currentTurn: 0,
+        gameFields: [],
       },
     });
 
