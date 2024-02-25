@@ -70,7 +70,7 @@ export type TurnData = {
   currentPlayer: number;
 };
 
-export type AttackResult = 'miss' | 'killed' | 'shot' | 'fail';
+export type AttackResult = 'miss' | 'killed' | 'shot' | 'fail' | 'finish';
 
 export type AttackFeedbackData = {
   position: {
@@ -131,7 +131,9 @@ export type LoginOrCreateResponseData = {
   errorText: string;
 };
 
-export type AppState = 'main' | 'room' | 'game';
+export type FinishGameData = {
+  winPlayer: number;
+};
 
 export type GameRoomCommands = keyof typeof MessageTypesGameRoom;
 export type PersonalCommands = keyof typeof MessageTypesPersonal;

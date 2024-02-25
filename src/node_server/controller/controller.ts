@@ -7,6 +7,7 @@ import {
 } from '../data/enums';
 import {
   Commands,
+  FinishGameData,
   GamePlayer,
   GameRoom,
   HandleAttackResponse,
@@ -192,13 +193,14 @@ export default class Controller extends AbstractController {
     this.addMessage({ message, address: MessageAddress.ALL });
   }
 
-  private attack(data: string) {
+  private attack(data: string): void {
     const { attackFeedback, gameId, splash, shot }: HandleAttackResponse =
       this.game_controller.handleAttack(data);
 
-    if (attackFeedback.status === 'fail') return [];
+    if (attackFeedback.status === 'fail') return;
 
-    const gamePlayers: GamePlayer[] = this.state.getGame(gameId).gamePlayers;
+    const gameRoom: GameRoom = this.state.getGame(gameId);
+    const gamePlayers: GamePlayer[] = gameRoom.gamePlayers;
 
     gamePlayers.forEach((player) => {
       const message = this.createMessage(
@@ -209,7 +211,10 @@ export default class Controller extends AbstractController {
       this.addMessage({ message, address: player.indexPlayer });
     });
 
-    if (attackFeedback.status === 'killed') {
+    if (
+      attackFeedback.status === 'killed' ||
+      attackFeedback.status === 'finish'
+    ) {
       const shotAttackFeedback = JSON.parse(JSON.stringify(attackFeedback));
 
       shot?.forEach((coord) => {
@@ -247,6 +252,21 @@ export default class Controller extends AbstractController {
           this.addMessage({ message, address: player.indexPlayer });
         });
       });
+    }
+
+    if (attackFeedback.status === 'finish') {
+      const finishGameData: FinishGameData = {
+        winPlayer: gamePlayers[gameRoom.currentTurn].indexPlayer,
+      };
+
+      const message = this.createMessage(
+        MessageTypesGameRoom.finish,
+        JSON.stringify(finishGameData)
+      );
+
+      this.addMessage({ message, address: MessageAddress.ALL });
+
+      return;
     }
 
     this.turn(gameId, attackFeedback.status === 'miss');

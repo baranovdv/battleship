@@ -87,6 +87,14 @@ export default class GameController implements IGameController {
       status: attackResult,
     };
 
+    const isFinish = this.checkFinish(
+      gameRoom.gameFields[gameRoom.currentTurn]
+    );
+
+    if (isFinish) {
+      handleAttackResponse.status = 'finish';
+    }
+
     console.log(attackResult);
 
     return {
@@ -226,5 +234,19 @@ export default class GameController implements IGameController {
     });
 
     return field;
+  }
+
+  private checkFinish(field: GameField): boolean {
+    let shipsCounter = 0;
+
+    for (let i = 0; i < field.length; i++) {
+      for (let j = 0; j < field[i].length; j++) {
+        if (field[i][j] === SHIP_STATE.SHIP) {
+          shipsCounter += 1;
+        }
+      }
+    }
+
+    return shipsCounter === 0;
   }
 }
