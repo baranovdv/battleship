@@ -133,7 +133,7 @@ export default class GameController implements IGameController {
 
     let result: AttackResult = 'fail';
 
-    if (field[y][x] === SHIP_STATE.NO_SHIP || field[y][x] === SHIP_STATE.SHOT) {
+    if (field[y][x] === SHIP_STATE.NO_SHIP) {
       result = 'miss';
 
       return result;
