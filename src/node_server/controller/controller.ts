@@ -93,10 +93,8 @@ export default class Controller extends AbstractController {
           {
             const gameId = this.game_controller.addPlayerShips(data);
 
-            console.log(gameId);
             if (gameId === null) break;
 
-            console.log(gameId);
             const gamePlayers: GamePlayer[] = this.state.getGame(gameId);
 
             gamePlayers.forEach((player) => {

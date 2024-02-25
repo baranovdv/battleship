@@ -40,7 +40,12 @@ export type ShipData = {
   type: 'small' | 'medium' | 'large' | 'huge';
 };
 
-export type GameRoom = Record<number, GamePlayer[]>;
+export type GameRooms = Record<number, GameRoom>;
+
+export type GameRoom = {
+  GamePlayers: GamePlayer[];
+  CurrentTurn: number;
+};
 
 export type GamePlayer = {
   ships: ShipData[];

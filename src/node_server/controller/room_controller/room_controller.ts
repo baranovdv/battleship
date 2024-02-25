@@ -67,7 +67,12 @@ export default class RoomController implements IRoomController {
 
     this.state.deleteRoom(roomData.roomId);
 
-    this.state.addGame({ [roomData.roomId]: [] });
+    this.state.addGame({
+      [roomData.roomId]: {
+        GamePlayers: [],
+        CurrentTurn: 0,
+      },
+    });
 
     const createGameData: CreateGameData = {
       idGame: roomData.roomId,

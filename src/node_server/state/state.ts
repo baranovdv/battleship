@@ -2,7 +2,7 @@ import {
   AppState,
   GameData,
   GamePlayer,
-  GameRoom,
+  GameRooms,
   PlayerData,
   RoomData,
   RoomUser,
@@ -28,14 +28,14 @@ export interface IState {
   checkRooms: (id: number) => void;
 
   getGame: (gameId: number) => GamePlayer[];
-  addGame: (game: GameRoom) => void;
+  addGame: (game: GameRooms) => void;
   addShips: (gameData: GameData) => boolean;
 }
 
 export default class State implements IState {
   private state: AppState;
   private rooms: RoomData[];
-  private games: GameRoom;
+  private games: GameRooms;
   private winners: WinnerData[];
   private playersDB: PlayerData[];
   private playersActive: RoomUser[];
@@ -43,7 +43,7 @@ export default class State implements IState {
   constructor() {
     this.state = 'main';
     this.rooms = [];
-    this.games = [];
+    this.games = {};
     this.winners = [];
     this.playersDB = [];
     this.playersActive = [];
@@ -80,12 +80,12 @@ export default class State implements IState {
   }
 
   public getGame(gameId: number): GamePlayer[] {
-    const gamePlayers = this.games[gameId];
+    const gamePlayers = this.games[gameId].GamePlayers;
 
     return gamePlayers;
   }
 
-  public addGame(game: GameRoom): void {
+  public addGame(game: GameRooms): void {
     this.games = { ...this.games, ...game };
   }
 
@@ -95,9 +95,9 @@ export default class State implements IState {
       indexPlayer: gameData.indexPlayer,
     };
 
-    this.games[gameData.gameId].push(gamePlayer);
+    this.games[gameData.gameId].GamePlayers.push(gamePlayer);
 
-    return this.games[gameData.gameId].length === 2;
+    return this.games[gameData.gameId].GamePlayers.length === 2;
   }
 
   public getWinners(): WinnerData[] {
@@ -140,21 +140,3 @@ export default class State implements IState {
     this.playersActive.push(player);
   }
 }
-
-// {
-//   type: "update_room",
-//   data:
-//       [
-//           {
-//               roomId: <number>,
-//               roomUsers:
-//                   [
-//                       {
-//                           name: <string>,
-//                           index: <number>,
-//                       }
-//                   ],
-//           },
-//       ],
-//   id: 0,
-// }
