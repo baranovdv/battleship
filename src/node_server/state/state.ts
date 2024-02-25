@@ -11,6 +11,7 @@ import {
 
 export interface IState {
   getWinners: () => WinnerData[];
+  addWinner: (winnerName: string) => void;
 
   getPlayersDB: () => PlayerData[];
   addPlayerDB: (player: PlayerData) => number;
@@ -94,6 +95,21 @@ export default class State implements IState {
 
   public getWinners(): WinnerData[] {
     return this.winners;
+  }
+
+  public addWinner(winnerName: string): void {
+    const winnerIndex = this.winners.findIndex(
+      (winner) => winner.name === winnerName
+    );
+
+    if (winnerIndex < 0) {
+      this.winners.push({
+        name: winnerName,
+        wins: 1,
+      });
+    } else {
+      this.winners[winnerIndex].wins += 1;
+    }
   }
 
   public getPlayersDB(): PlayerData[] {

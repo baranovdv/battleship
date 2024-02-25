@@ -67,6 +67,7 @@ export default class Controller extends AbstractController {
             this.addMessage({ message });
 
             this.updateRoom();
+            this.updateWinners();
           }
           break;
 
@@ -182,17 +183,6 @@ export default class Controller extends AbstractController {
     });
   }
 
-  private updateRoom(): void {
-    const roomData = this.room_controller.getRoomsData();
-
-    const message = this.createMessage(
-      MessageTypesForAll.update_room,
-      roomData
-    );
-
-    this.addMessage({ message, address: MessageAddress.ALL });
-  }
-
   private attack(data: string): void {
     const { attackFeedback, gameId, splash, shot }: HandleAttackResponse =
       this.game_controller.handleAttack(data);
@@ -255,16 +245,26 @@ export default class Controller extends AbstractController {
     }
 
     if (attackFeedback.status === 'finish') {
+      const winnerId = gamePlayers[gameRoom.currentTurn].indexPlayer;
+
+      const player = this.state.getPlayerActive(winnerId);
+
+      this.state.addWinner(player.name);
+
       const finishGameData: FinishGameData = {
-        winPlayer: gamePlayers[gameRoom.currentTurn].indexPlayer,
+        winPlayer: winnerId,
       };
 
-      const message = this.createMessage(
-        MessageTypesGameRoom.finish,
-        JSON.stringify(finishGameData)
-      );
+      gamePlayers.forEach((player) => {
+        const message = this.createMessage(
+          MessageTypesGameRoom.finish,
+          JSON.stringify(finishGameData)
+        );
 
-      this.addMessage({ message, address: MessageAddress.ALL });
+        this.addMessage({ message, address: player.indexPlayer });
+      });
+
+      this.updateWinners();
 
       return;
     }
@@ -278,5 +278,27 @@ export default class Controller extends AbstractController {
     this.clearMessages();
 
     return messageBuffer;
+  }
+
+  private updateRoom(): void {
+    const roomData = this.room_controller.getRoomsData();
+
+    const message = this.createMessage(
+      MessageTypesForAll.update_room,
+      roomData
+    );
+
+    this.addMessage({ message, address: MessageAddress.ALL });
+  }
+
+  private updateWinners() {
+    const winners = this.state.getWinners();
+
+    const message = this.createMessage(
+      MessageTypesForAll.update_winners,
+      JSON.stringify(winners)
+    );
+
+    this.addMessage({ message, address: MessageAddress.ALL });
   }
 }
