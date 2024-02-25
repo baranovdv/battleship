@@ -193,7 +193,7 @@ export default class Controller extends AbstractController {
   }
 
   private attack(data: string) {
-    const { attackFeedback, gameId, splash }: HandleAttackResponse =
+    const { attackFeedback, gameId, splash, shot }: HandleAttackResponse =
       this.game_controller.handleAttack(data);
 
     if (attackFeedback.status === 'fail') return [];
@@ -210,6 +210,24 @@ export default class Controller extends AbstractController {
     });
 
     if (attackFeedback.status === 'killed') {
+      const shotAttackFeedback = JSON.parse(JSON.stringify(attackFeedback));
+
+      shot?.forEach((coord) => {
+        const [x, y] = coord.split(':');
+
+        shotAttackFeedback.position.x = +x;
+        shotAttackFeedback.position.y = +y;
+
+        gamePlayers.forEach((player) => {
+          const message = this.createMessage(
+            MessageTypesGameRoom.attack,
+            JSON.stringify(shotAttackFeedback)
+          );
+
+          this.addMessage({ message, address: player.indexPlayer });
+        });
+      });
+
       const splashAttackFeedback = JSON.parse(JSON.stringify(attackFeedback));
 
       splashAttackFeedback.status = 'miss';

@@ -22,10 +22,12 @@ export interface IGameController {
 export default class GameController implements IGameController {
   private state: IState;
   private splash: Set<string>;
+  private shot: Set<string>;
 
   constructor(state: IState) {
     this.state = state;
     this.splash = new Set();
+    this.shot = new Set();
   }
 
   public addPlayerShips(data: string): number | null {
@@ -91,6 +93,7 @@ export default class GameController implements IGameController {
       attackFeedback: handleAttackResponse,
       gameId: attackData.gameId,
       splash: this.splash,
+      shot: this.shot,
     };
   }
 
@@ -132,6 +135,7 @@ export default class GameController implements IGameController {
       field[y][x] = SHIP_STATE.SHOT;
 
       this.splash.clear();
+      this.shot.clear();
 
       result = this.checkOutside(field, x, y);
     }
@@ -171,6 +175,9 @@ export default class GameController implements IGameController {
         }
 
         if (field[i][j] === SHIP_STATE.SHOT) {
+          this.shot.add(`${j}:${i}`);
+          this.shot.add(`${x}:${y}`);
+
           const recResult = this.checkOutside(field, j, i, x, y);
           result = recResult === 'shot' ? 'shot' : result;
         }

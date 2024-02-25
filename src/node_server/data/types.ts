@@ -85,6 +85,7 @@ export type HandleAttackResponse = {
   attackFeedback: AttackFeedbackData;
   gameId: number;
   splash?: Set<string>;
+  shot?: Set<string>;
 };
 
 export type AttackData = {
