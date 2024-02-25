@@ -67,7 +67,7 @@ export default class RoomController implements IRoomController {
 
     this.state.deleteRoom(roomData.roomId);
 
-    this.state.addGame(roomData);
+    this.state.addGame({ [roomData.roomId]: [] });
 
     const createGameData: CreateGameData = {
       idGame: roomData.roomId,
@@ -75,7 +75,7 @@ export default class RoomController implements IRoomController {
     };
 
     return {
-      data: JSON.stringify(createGameData),
+      data: createGameData,
       playerIds: [playerOneId, id],
     };
   }

@@ -29,10 +29,8 @@ export default function nodeServer() {
             for (const id in clients) {
               clients[id].send(message.message);
             }
-          } else if (Array.isArray(message.address)) {
-            message.address.forEach((id) => {
-              clients[id].send(message.message);
-            });
+          } else if (typeof message.address === 'number') {
+            clients[message.address].send(message.message);
           } else {
             ws.send(message.message);
           }
@@ -43,8 +41,6 @@ export default function nodeServer() {
     });
 
     ws.on('close', () => {
-      // controller.removePlayerActive(id);
-
       controller.cleanUp(id);
 
       delete clients[id];

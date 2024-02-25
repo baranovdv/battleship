@@ -1,5 +1,8 @@
 import {
   AppState,
+  GameData,
+  GamePlayer,
+  GameRoom,
   PlayerData,
   RoomData,
   RoomUser,
@@ -24,13 +27,15 @@ export interface IState {
   deleteRoom: (id: number) => void;
   checkRooms: (id: number) => void;
 
-  addGame: (game: RoomData) => void;
+  getGame: (gameId: number) => GamePlayer[];
+  addGame: (game: GameRoom) => void;
+  addShips: (gameData: GameData) => boolean;
 }
 
 export default class State implements IState {
   private state: AppState;
   private rooms: RoomData[];
-  private games: RoomData[];
+  private games: GameRoom;
   private winners: WinnerData[];
   private playersDB: PlayerData[];
   private playersActive: RoomUser[];
@@ -67,15 +72,32 @@ export default class State implements IState {
   }
 
   public deleteRoom(roomId: number): void {
-    const roomIndex = this.rooms.findIndex((room) => (room.roomId = roomId));
+    const roomIndex = this.rooms.findIndex((room) => room.roomId === roomId);
 
-    if (roomIndex < 0) throw new Error('Room DB error');
+    if (roomIndex < 0) return;
 
     this.rooms.splice(roomIndex, 1);
   }
 
-  public addGame(game: RoomData): void {
-    this.games.push(game);
+  public getGame(gameId: number): GamePlayer[] {
+    const gamePlayers = this.games[gameId];
+
+    return gamePlayers;
+  }
+
+  public addGame(game: GameRoom): void {
+    this.games = { ...this.games, ...game };
+  }
+
+  public addShips(gameData: GameData): boolean {
+    const gamePlayer: GamePlayer = {
+      ships: gameData.ships,
+      indexPlayer: gameData.indexPlayer,
+    };
+
+    this.games[gameData.gameId].push(gamePlayer);
+
+    return this.games[gameData.gameId].length === 2;
   }
 
   public getWinners(): WinnerData[] {

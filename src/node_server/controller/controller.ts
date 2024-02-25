@@ -5,9 +5,12 @@ import {
   MessageTypesGameRoom,
   MessageTypesPersonal,
 } from '../data/enums';
-import { Commands, Message, MessageToSend } from '../data/types';
+import { Commands, GamePlayer, Message, MessageToSend } from '../data/types';
 import State, { IState } from '../state/state';
 import AbstractController from './abstract_controller/abstract_controller';
+import GameController, {
+  IGameController,
+} from './game_controller/game_controller';
 import RegController, { IRegController } from './reg_controller/reg_controller';
 import RoomController, {
   IRoomController,
@@ -23,6 +26,7 @@ export default class Controller extends AbstractController {
   private messages: MessageToSend[];
   private reg_controller: IRegController;
   private room_controller: IRoomController;
+  private game_controller: IGameController;
 
   constructor() {
     super();
@@ -31,6 +35,7 @@ export default class Controller extends AbstractController {
     this.messages = [];
     this.reg_controller = new RegController(this.state);
     this.room_controller = new RoomController(this.state);
+    this.game_controller = new GameController(this.state);
   }
 
   public handleRequest(request: string, id: number) {
@@ -69,14 +74,39 @@ export default class Controller extends AbstractController {
             const gameData = this.room_controller.addUserToRoom(data, id);
 
             if (gameData) {
-              const message = this.createMessage(
-                MessageTypesGameRoom.create_game,
-                gameData.data
-              );
-              this.addMessage({ message, address: gameData.playerIds });
+              gameData.playerIds.forEach((id) => {
+                gameData.data.idPlayer = id;
+
+                const message = this.createMessage(
+                  MessageTypesGameRoom.create_game,
+                  JSON.stringify(gameData.data)
+                );
+                this.addMessage({ message, address: id });
+              });
             }
 
             this.updateRoom();
+          }
+          break;
+
+        case 'add_ships':
+          {
+            const gameId = this.game_controller.addPlayerShips(data);
+
+            console.log(gameId);
+            if (gameId === null) break;
+
+            console.log(gameId);
+            const gamePlayers: GamePlayer[] = this.state.getGame(gameId);
+
+            gamePlayers.forEach((player) => {
+              const message = this.createMessage(
+                MessageTypesGameRoom.start_game,
+                JSON.stringify(player)
+              );
+
+              this.addMessage({ message, address: player.indexPlayer });
+            });
           }
           break;
 
