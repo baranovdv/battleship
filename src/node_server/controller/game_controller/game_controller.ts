@@ -2,10 +2,12 @@ import {
   AttackData,
   AttackFeedbackData,
   AttackResult,
+  CellCoords,
   GameData,
   GameField,
   GameRoom,
   HandleAttackResponse,
+  RandomAttackData,
   ShipData,
 } from '../../data/types';
 import { IState } from '../../state/state';
@@ -14,6 +16,7 @@ import { SHIP_STATE } from '../../data/enums';
 export interface IGameController {
   addPlayerShips: (data: string) => number | null;
   handleAttack: (data: string) => HandleAttackResponse;
+  getRandomAttackShot: (data: string) => string;
 }
 
 export default class GameController implements IGameController {
@@ -91,6 +94,25 @@ export default class GameController implements IGameController {
     };
   }
 
+  public getRandomAttackShot(data: string): string {
+    const randomAttackData: RandomAttackData = JSON.parse(
+      data
+    ) as RandomAttackData;
+
+    const gameRoom = this.state.getGame(randomAttackData.gameId);
+
+    const field = gameRoom.gameFields[gameRoom.currentTurn];
+
+    const randomCoords: CellCoords = this.getRandomCoords(field);
+
+    const attackData: AttackData = {
+      ...randomAttackData,
+      ...randomCoords,
+    };
+
+    return JSON.stringify(attackData);
+  }
+
   private handleAttackCoords(
     gameRoom: GameRoom,
     x: number,
@@ -156,6 +178,24 @@ export default class GameController implements IGameController {
     }
 
     return result;
+  }
+
+  private getRandomCoords(field: GameField): CellCoords {
+    const cellCoords: CellCoords = {
+      x: 0,
+      y: 0,
+    };
+
+    let cellState = SHIP_STATE.SHOT;
+
+    while (cellState === SHIP_STATE.SHOT) {
+      cellCoords.x = Math.round(Math.random() * 9);
+      cellCoords.y = Math.round(Math.random() * 9);
+
+      cellState = field[cellCoords.y][cellCoords.x];
+    }
+
+    return cellCoords;
   }
 
   private createField(ships: ShipData[]): GameField {

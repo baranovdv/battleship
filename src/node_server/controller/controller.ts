@@ -121,48 +121,16 @@ export default class Controller extends AbstractController {
 
         case 'attack':
           {
-            const { attackFeedback, gameId, splash }: HandleAttackResponse =
-              this.game_controller.handleAttack(data);
+            this.attack(data);
+          }
+          break;
 
-            if (attackFeedback.status === 'fail') return [];
+        case 'randomAttack':
+          {
+            const randomAttackShot =
+              this.game_controller.getRandomAttackShot(data);
 
-            const gamePlayers: GamePlayer[] =
-              this.state.getGame(gameId).gamePlayers;
-
-            gamePlayers.forEach((player) => {
-              const message = this.createMessage(
-                MessageTypesGameRoom.attack,
-                JSON.stringify(attackFeedback)
-              );
-
-              this.addMessage({ message, address: player.indexPlayer });
-            });
-
-            if (attackFeedback.status === 'killed') {
-              const splashAttackFeedback = JSON.parse(
-                JSON.stringify(attackFeedback)
-              );
-
-              splashAttackFeedback.status = 'miss';
-
-              splash?.forEach((coord) => {
-                const [x, y] = coord.split(':');
-
-                splashAttackFeedback.position.x = +x;
-                splashAttackFeedback.position.y = +y;
-
-                gamePlayers.forEach((player) => {
-                  const message = this.createMessage(
-                    MessageTypesGameRoom.attack,
-                    JSON.stringify(splashAttackFeedback)
-                  );
-
-                  this.addMessage({ message, address: player.indexPlayer });
-                });
-              });
-            }
-
-            this.turn(gameId, attackFeedback.status === 'miss');
+            this.attack(randomAttackShot);
           }
           break;
 
@@ -222,6 +190,48 @@ export default class Controller extends AbstractController {
     );
 
     this.addMessage({ message, address: MessageAddress.ALL });
+  }
+
+  private attack(data: string) {
+    const { attackFeedback, gameId, splash }: HandleAttackResponse =
+      this.game_controller.handleAttack(data);
+
+    if (attackFeedback.status === 'fail') return [];
+
+    const gamePlayers: GamePlayer[] = this.state.getGame(gameId).gamePlayers;
+
+    gamePlayers.forEach((player) => {
+      const message = this.createMessage(
+        MessageTypesGameRoom.attack,
+        JSON.stringify(attackFeedback)
+      );
+
+      this.addMessage({ message, address: player.indexPlayer });
+    });
+
+    if (attackFeedback.status === 'killed') {
+      const splashAttackFeedback = JSON.parse(JSON.stringify(attackFeedback));
+
+      splashAttackFeedback.status = 'miss';
+
+      splash?.forEach((coord) => {
+        const [x, y] = coord.split(':');
+
+        splashAttackFeedback.position.x = +x;
+        splashAttackFeedback.position.y = +y;
+
+        gamePlayers.forEach((player) => {
+          const message = this.createMessage(
+            MessageTypesGameRoom.attack,
+            JSON.stringify(splashAttackFeedback)
+          );
+
+          this.addMessage({ message, address: player.indexPlayer });
+        });
+      });
+    }
+
+    this.turn(gameId, attackFeedback.status === 'miss');
   }
 
   private deliverMessages(): MessageToSend[] {

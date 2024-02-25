@@ -42,6 +42,11 @@ export type ShipData = {
 
 export type GameField = number[][];
 
+export type CellCoords = {
+  x: number;
+  y: number;
+};
+
 export type GameRooms = Record<number, GameRoom>;
 
 export type GameRoom = {
@@ -86,6 +91,11 @@ export type AttackData = {
   gameId: number;
   x: number;
   y: number;
+  indexPlayer: number;
+};
+
+export type RandomAttackData = {
+  gameId: number;
   indexPlayer: number;
 };
 
