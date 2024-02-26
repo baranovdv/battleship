@@ -7,7 +7,7 @@ import {
 import { IState } from '../../state/state';
 
 export interface IRoomController {
-  createRoom: (id: number) => void;
+  createRoom: (id: number) => number | undefined;
   getRoomsData: () => string;
   addUserToRoom: (
     data: string,
@@ -24,7 +24,7 @@ export default class RoomController implements IRoomController {
     this.roomsCounter = 0;
   }
 
-  public createRoom(id: number): void {
+  public createRoom(id: number): number | undefined {
     if (this.checkIsUserInRoom(id)) return;
 
     const player = this.state.getPlayerActive(id);
@@ -41,6 +41,8 @@ export default class RoomController implements IRoomController {
     };
 
     this.state.addRoom(roomData);
+
+    return roomId;
   }
 
   public addUserToRoom(
@@ -68,6 +70,7 @@ export default class RoomController implements IRoomController {
     roomData.roomUsers.push(player);
 
     this.state.deleteRoom(roomData.roomId);
+    this.state.checkRooms(id);
 
     this.state.addGame({
       [roomData.roomId]: {

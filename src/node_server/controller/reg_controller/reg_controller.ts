@@ -1,8 +1,10 @@
+import { MessageAddress } from '../../data/enums';
 import { LoginOrCreateResponseData, PlayerData } from '../../data/types';
 import { IState } from '../../state/state';
 
 export interface IRegController {
   getRegResponse: (data: string, id: number) => string;
+  createBot: () => void;
 }
 
 export default class RegController {
@@ -37,6 +39,16 @@ export default class RegController {
     }
 
     return JSON.stringify(responseData);
+  }
+
+  public createBot(): void {
+    const bot: PlayerData = {
+      name: 'Bot',
+      password: 'password',
+    };
+
+    this.addPlayerDB(bot);
+    this.addPlayerActive(bot.name, MessageAddress.BOT);
   }
 
   private addPlayerDB(player: PlayerData): boolean {

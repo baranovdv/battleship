@@ -23,7 +23,7 @@ export enum MessageTypesForAll {
 
 export enum MessageAddress {
   ALL,
-  SELF,
+  BOT,
 }
 
 export enum SHIP_STATE {

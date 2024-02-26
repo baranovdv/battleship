@@ -1,4 +1,4 @@
-import { ERROR_COMMAND_MESSAGE } from '../data/data';
+import { BOT_SHIPS_LAYOUTS, ERROR_COMMAND_MESSAGE } from '../data/data';
 import {
   MessageAddress,
   MessageTypesForAll,
@@ -6,13 +6,17 @@ import {
   MessageTypesPersonal,
 } from '../data/enums';
 import {
+  AddUserToRoomData,
   Commands,
   FinishGameData,
+  GameData,
   GamePlayer,
   GameRoom,
   HandleAttackResponse,
   Message,
   MessageToSend,
+  RandomAttackData,
+  ShipData,
   TurnData,
 } from '../data/types';
 import State, { IState } from '../state/state';
@@ -81,43 +85,13 @@ export default class Controller extends AbstractController {
 
         case 'add_user_to_room':
           {
-            const gameData = this.room_controller.addUserToRoom(data, id);
-
-            if (gameData) {
-              gameData.playerIds.forEach((id) => {
-                gameData.data.idPlayer = id;
-
-                const message = this.createMessage(
-                  MessageTypesGameRoom.create_game,
-                  JSON.stringify(gameData.data)
-                );
-                this.addMessage({ message, address: id });
-              });
-            }
-
-            this.updateRoom();
+            this.addUserToRoom(data, id);
           }
           break;
 
         case 'add_ships':
           {
-            const gameId = this.game_controller.addPlayerShips(data);
-
-            if (gameId === null) break;
-
-            const gamePlayers: GamePlayer[] =
-              this.state.getGame(gameId).gamePlayers;
-
-            gamePlayers.forEach((player) => {
-              const message = this.createMessage(
-                MessageTypesGameRoom.start_game,
-                JSON.stringify(player)
-              );
-
-              this.addMessage({ message, address: player.indexPlayer });
-            });
-
-            this.turn(gameId);
+            this.addShips(data);
           }
           break;
 
@@ -129,10 +103,41 @@ export default class Controller extends AbstractController {
 
         case 'randomAttack':
           {
-            const randomAttackShot =
-              this.game_controller.getRandomAttackShot(data);
+            this.randomAttack(data);
+          }
+          break;
 
-            this.attack(randomAttackShot);
+        case 'single_play':
+          {
+            this.state.checkRooms(id);
+
+            const roomId = this.room_controller.createRoom(id);
+
+            if (roomId === undefined) throw new Error('Bot creation error');
+
+            this.reg_controller.createBot();
+
+            const addBotToRoomData: AddUserToRoomData = {
+              indexRoom: roomId,
+            };
+
+            const gameId = this.addUserToRoom(
+              JSON.stringify(addBotToRoomData),
+              MessageAddress.BOT
+            );
+
+            const ships: ShipData[] =
+              BOT_SHIPS_LAYOUTS[
+                Math.floor(Math.random() * BOT_SHIPS_LAYOUTS.length)
+              ];
+
+            const gameData: GameData = {
+              gameId,
+              ships,
+              indexPlayer: MessageAddress.BOT,
+            };
+
+            this.addShips(JSON.stringify(gameData));
           }
           break;
 
@@ -181,6 +186,15 @@ export default class Controller extends AbstractController {
 
       this.addMessage({ message, address: player.indexPlayer });
     });
+
+    if (currentTurnPlayerId === MessageAddress.BOT) {
+      const randomAttackData: RandomAttackData = {
+        gameId,
+        indexPlayer: currentTurnPlayerId,
+      };
+
+      this.randomAttack(JSON.stringify(randomAttackData));
+    }
   }
 
   private attack(data: string): void {
@@ -270,6 +284,53 @@ export default class Controller extends AbstractController {
     }
 
     this.turn(gameId, attackFeedback.status === 'miss');
+  }
+
+  private addUserToRoom(data: string, id: number): number {
+    const gameData = this.room_controller.addUserToRoom(data, id);
+
+    if (gameData === undefined) throw new Error('Add user error');
+
+    if (gameData) {
+      gameData.playerIds.forEach((id) => {
+        gameData.data.idPlayer = id;
+
+        const message = this.createMessage(
+          MessageTypesGameRoom.create_game,
+          JSON.stringify(gameData.data)
+        );
+        this.addMessage({ message, address: id });
+      });
+    }
+
+    this.updateRoom();
+
+    return gameData.data.idGame;
+  }
+
+  private addShips(data: string) {
+    const gameId = this.game_controller.addPlayerShips(data);
+
+    if (gameId === null) return;
+
+    const gamePlayers: GamePlayer[] = this.state.getGame(gameId).gamePlayers;
+
+    gamePlayers.forEach((player) => {
+      const message = this.createMessage(
+        MessageTypesGameRoom.start_game,
+        JSON.stringify(player)
+      );
+
+      this.addMessage({ message, address: player.indexPlayer });
+    });
+
+    this.turn(gameId);
+  }
+
+  private randomAttack(data: string) {
+    const randomAttackShot = this.game_controller.getRandomAttackShot(data);
+
+    this.attack(randomAttackShot);
   }
 
   private deliverMessages(): MessageToSend[] {
