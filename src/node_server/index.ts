@@ -46,9 +46,24 @@ export default function nodeServer() {
     });
 
     ws.on('close', () => {
-      controller.cleanUp(id);
+      const surrenderMessage = controller.handleSurrender(id);
 
       delete clients[id];
+
+      if (surrenderMessage !== null) {
+        clients[surrenderMessage.address!].send(surrenderMessage.message);
+
+        const winnersUpdateMsg = controller.getUpdateWinnersMsg();
+
+        for (const id in clients) {
+          clients[id].send(winnersUpdateMsg);
+        }
+
+        console.log(
+          `User with id ${surrenderMessage.address!} won due to ${id} close`
+        );
+      }
+      controller.cleanUp(id);
 
       console.log(`Connection with id ${id} closed`);
     });

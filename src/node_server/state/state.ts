@@ -30,6 +30,7 @@ export interface IState {
   addGame: (game: GameRooms) => void;
   addShips: (gameData: GameData) => boolean;
   checkGame: (id: number) => void;
+  getSurrendedToPlayerId: (id: number) => number | null;
 }
 
 export default class State implements IState {
@@ -100,6 +101,24 @@ export default class State implements IState {
     gamesToDelete.forEach((gameId) => {
       delete this.games[gameId];
     });
+  }
+
+  public getSurrendedToPlayerId(id: number): number | null {
+    let result = null;
+    const games = Object.keys(this.games);
+
+    games.forEach((gameId) => {
+      const gamePlayers = this.games[+gameId].gamePlayers;
+
+      if (gamePlayers.length < 2) return;
+      gamePlayers.forEach((player, index) => {
+        if (player.indexPlayer === id) {
+          result = gamePlayers[Number(!index)].indexPlayer;
+        }
+      });
+    });
+
+    return result;
   }
 
   public addShips(gameData: GameData): boolean {

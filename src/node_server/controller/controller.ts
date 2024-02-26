@@ -32,6 +32,8 @@ import RoomController, {
 export interface IController {
   handleRequest: (request: string, id: number) => string[];
   cleanUp: (id: number) => void;
+  handleSurrender: (id: number) => MessageToSend | null;
+  getUpdateWinnersMsg: () => string;
 }
 
 export default class Controller extends AbstractController {
@@ -150,6 +152,44 @@ export default class Controller extends AbstractController {
     } catch (error) {
       throw new Error((error as Error).message);
     }
+  }
+
+  public handleSurrender(id: number): MessageToSend | null {
+    let result = null;
+
+    const surrendedToPlayerId = this.state.getSurrendedToPlayerId(id);
+
+    if (surrendedToPlayerId !== null) {
+      const player = this.state.getPlayerActive(surrendedToPlayerId);
+
+      this.state.addWinner(player.name);
+
+      this.updateWinners();
+
+      const finishGameData: FinishGameData = {
+        winPlayer: surrendedToPlayerId,
+      };
+
+      const message = this.createMessage(
+        MessageTypesGameRoom.finish,
+        JSON.stringify(finishGameData)
+      );
+
+      result = { message, address: surrendedToPlayerId };
+    }
+
+    return result;
+  }
+
+  public getUpdateWinnersMsg(): string {
+    const winners = this.state.getWinners();
+
+    const message = this.createMessage(
+      MessageTypesForAll.update_winners,
+      JSON.stringify(winners)
+    );
+
+    return message;
   }
 
   public cleanUp(id: number) {
