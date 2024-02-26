@@ -29,6 +29,7 @@ export interface IState {
   getGame: (gameId: number) => GameRoom;
   addGame: (game: GameRooms) => void;
   addShips: (gameData: GameData) => boolean;
+  checkGame: (id: number) => void;
 }
 
 export default class State implements IState {
@@ -80,6 +81,25 @@ export default class State implements IState {
 
   public addGame(game: GameRooms): void {
     this.games = { ...this.games, ...game };
+  }
+
+  public checkGame(id: number): void {
+    const gamesToDelete: number[] = [];
+    const games = Object.keys(this.games);
+
+    games.forEach((gameId) => {
+      const gamePlayers = this.games[+gameId].gamePlayers;
+
+      gamePlayers.forEach((player) => {
+        if (player.indexPlayer === id) {
+          gamesToDelete.push(+gameId);
+        }
+      });
+    });
+
+    gamesToDelete.forEach((gameId) => {
+      delete this.games[gameId];
+    });
   }
 
   public addShips(gameData: GameData): boolean {

@@ -1,15 +1,16 @@
 import ws from 'ws';
 import Controller from './controller/controller';
 import { MessageAddress } from './data/enums';
+import { CLIENTS_COUNTER_START_NUM, SERVER_PORT } from './data/data';
 
 export default function nodeServer() {
   const controller = new Controller();
 
   const clients: Record<number, ws> = {};
 
-  let clientsCounter = 2;
+  let clientsCounter = CLIENTS_COUNTER_START_NUM;
 
-  const wss = new ws.Server({ port: 3000 });
+  const wss = new ws.Server({ port: SERVER_PORT });
 
   wss.on('connection', (ws) => {
     const id = clientsCounter;
@@ -30,17 +31,6 @@ export default function nodeServer() {
               clients[id].send(message.message);
             }
           } else if (message.address === MessageAddress.BOT) {
-            // const botMessage = JSON.parse(message.message) as Message;
-
-            // if (botMessage.type === 'turn') {
-            //   const turnData: TurnData = JSON.parse(
-            //     botMessage.data
-            //   ) as TurnData;
-            //   if (turnData.currentPlayer === MessageAddress.BOT) {
-
-            //   }
-            // }
-
             return;
           } else if (typeof message.address === 'number') {
             clients[message.address].send(message.message);

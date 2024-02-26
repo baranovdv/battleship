@@ -2,6 +2,10 @@ import { ShipData } from './types';
 
 export const ERROR_COMMAND_MESSAGE = 'No such command';
 
+export const SERVER_PORT = 3000;
+
+export const CLIENTS_COUNTER_START_NUM = 2;
+
 export const BOT_SHIPS_LAYOUTS: ShipData[][] = [
   [
     { position: { x: 9, y: 1 }, direction: true, type: 'huge', length: 4 },

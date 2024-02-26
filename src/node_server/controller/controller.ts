@@ -154,6 +154,7 @@ export default class Controller extends AbstractController {
   public cleanUp(id: number) {
     this.state.removePlayerActive(id);
     this.state.checkRooms(id);
+    this.state.checkGame(id);
   }
 
   private addMessage(message: MessageToSend) {
@@ -279,6 +280,8 @@ export default class Controller extends AbstractController {
       });
 
       this.updateWinners();
+
+      this.state.checkGame(winnerId);
 
       return;
     }
