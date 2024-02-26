@@ -45,6 +45,10 @@ export default class GameController implements IGameController {
       });
     }
 
+    console.log(
+      `User with id ${ships.indexPlayer} added ships to Gameroom ${ships.gameId}`
+    );
+
     return isPlayersReady ? ships.gameId : null;
   }
 
@@ -94,8 +98,6 @@ export default class GameController implements IGameController {
     if (isFinish) {
       handleAttackResponse.status = 'finish';
     }
-
-    console.log(attackResult);
 
     return {
       attackFeedback: handleAttackResponse,

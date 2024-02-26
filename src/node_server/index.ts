@@ -12,6 +12,8 @@ export default function nodeServer() {
 
   const wss = new ws.Server({ port: SERVER_PORT });
 
+  console.log(`Websocket is started on localhost:${SERVER_PORT}`);
+
   wss.on('connection', (ws) => {
     const id = clientsCounter;
 

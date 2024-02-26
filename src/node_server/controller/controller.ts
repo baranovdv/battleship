@@ -58,7 +58,8 @@ export default class Controller extends AbstractController {
       const command: Commands = parsedRequest.type;
       const data = parsedRequest.data;
 
-      console.log(command, data);
+      console.log(`User with id ${id} invoke ${command}`);
+
       switch (command) {
         case 'reg':
           {
@@ -216,6 +217,10 @@ export default class Controller extends AbstractController {
       this.addMessage({ message, address: player.indexPlayer });
     });
 
+    console.log(
+      `User with id ${gamePlayers[gameRoom.currentTurn].indexPlayer} ${attackFeedback.status}`
+    );
+
     if (
       attackFeedback.status === 'killed' ||
       attackFeedback.status === 'finish'
@@ -326,6 +331,8 @@ export default class Controller extends AbstractController {
 
       this.addMessage({ message, address: player.indexPlayer });
     });
+
+    console.log(`Gameroom ${gameId} is in play!`);
 
     this.turn(gameId);
   }

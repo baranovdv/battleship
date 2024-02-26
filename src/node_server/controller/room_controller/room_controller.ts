@@ -42,6 +42,8 @@ export default class RoomController implements IRoomController {
 
     this.state.addRoom(roomData);
 
+    console.log(`Room with ${roomId} is created `);
+
     return roomId;
   }
 
@@ -84,6 +86,11 @@ export default class RoomController implements IRoomController {
       idGame: roomData.roomId,
       idPlayer: id,
     };
+
+    console.log(`User with id ${id} added to room ${roomData.roomId}`);
+    console.log(
+      `Gameroom with id ${roomData.roomId} is created with players ${playerOneId} and ${id}`
+    );
 
     return {
       data: createGameData,

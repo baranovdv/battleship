@@ -28,6 +28,8 @@ export default class RegController {
       responseData.error = true;
       responseData.errorText = 'Wrong password';
 
+      console.log(`User with id ${id} tryed login with wrong password`);
+
       return JSON.stringify(responseData);
     }
 
@@ -35,8 +37,12 @@ export default class RegController {
       responseData.error = true;
       responseData.errorText = 'Player is in the game already';
 
+      console.log(`User with id ${id} is already in the game`);
+
       return JSON.stringify(responseData);
     }
+
+    console.log(`User with id ${id} logged in`);
 
     return JSON.stringify(responseData);
   }
