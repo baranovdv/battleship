@@ -4,9 +4,7 @@
     "description": "Template for the WebSocket remote control task",
     "main": "index.ts",
     "scripts": {
-        "start": "node ./index.ts",
-        "start:dev": "nodemon ./index.ts",
-        "start-server:dev": "nodemon --exec ts-node ./src/node_server/index.ts"
+        "start": "nodemon --exec ts-node ./index.ts"
     },
     "author": "Andrei Auchynnikau",
     "keywords": [],

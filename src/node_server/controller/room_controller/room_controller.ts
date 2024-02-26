@@ -42,7 +42,7 @@ export default class RoomController implements IRoomController {
 
     this.state.addRoom(roomData);
 
-    console.log(`Room with ${roomId} is created `);
+    console.log(`Room with id ${roomId} is created `);
 
     return roomId;
   }
