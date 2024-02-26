@@ -9,6 +9,7 @@ export enum MessageTypesGameRoom {
   attack = 'attack',
   randomAttack = 'randomAttack',
   finish = 'finish',
+  single_play = 'single_play',
 }
 
 export enum MessageTypesPersonal {

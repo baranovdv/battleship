@@ -25,6 +25,8 @@ export default class RoomController implements IRoomController {
   }
 
   public createRoom(id: number): void {
+    if (this.checkIsUserInRoom(id)) return;
+
     const player = this.state.getPlayerActive(id);
 
     const roomId = this.roomsCounter;
@@ -90,5 +92,13 @@ export default class RoomController implements IRoomController {
     const RoomsData: RoomData[] = this.state.getRooms();
 
     return JSON.stringify(RoomsData);
+  }
+
+  private checkIsUserInRoom(id: number): boolean {
+    const userIndex = this.state
+      .getRooms()
+      .findIndex((room) => room.roomUsers[0].index === id);
+
+    return userIndex >= 0;
   }
 }
