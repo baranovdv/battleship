@@ -309,7 +309,9 @@ export default class Controller extends AbstractController {
 
       const player = this.state.getPlayerActive(winnerId);
 
-      this.state.addWinner(player.name);
+      if (player.name !== 'Bot') {
+        this.state.addWinner(player.name);
+      }
 
       const finishGameData: FinishGameData = {
         winPlayer: winnerId,
